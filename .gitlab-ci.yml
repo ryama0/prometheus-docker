@@ -5,33 +5,46 @@ services:
 
 stages:
   - test
-  - build
-
-before_script:
-  - docker login -u $USERNAME -p $PASSWORD
+  - publish
 
 variables:
   DOCKER_REGISTRY: "ryama0"
-  DOCKER_IMAGE_NAME: "prometheus-armhf"
   DOCKER_HOST: "tcp://localhost:2375"
 
-test:
+.test_job_template: &test_job
   stage: test
   script:
-    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:test .
+    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:test ./$TARGET_DIR
   tags:
     - runner=kubernetes
     - arch=armhf
   except:
     - master
-build:
-  stage: build
+
+.publish_job_template: &publish_job
+  stage: publish
+  before_script:
+    - docker login -u $USERNAME -p $PASSWORD
   script:
-    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest .
+    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest ./$TARGET_DIR
     - docker push $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest
   tags:
     - runner=kubernetes
     - arch=armhf
   only:
     - master
+
+.prometheus_job_template: &prometheus_job
+  variables:
+    DOCKER_IMAGE_NAME: "prometheus-armhf"
+    TARGET_DIR: "prometheus"
+
+
+test_prometheus:
+  <<: *test_job
+  <<: *prometheus_job
+
+publish_prometheus:
+  <<: *publish_job
+  <<: *prometheus_job
 
