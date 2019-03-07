@@ -3,7 +3,9 @@ FROM ubuntu:cosmic
 RUN apt-get update &&\
     apt-get install -y prometheus --no-install-recommends && \
     mkdir -p /prometheus && \
-    chown -R nobody:nogroup /etc/prometheus /prometheus
+    chown -R nobody:nogroup /etc/prometheus /prometheus && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 USER nobody
 EXPOSE 9090
