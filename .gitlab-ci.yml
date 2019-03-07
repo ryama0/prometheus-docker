@@ -39,6 +39,10 @@ variables:
     DOCKER_IMAGE_NAME: "prometheus-armhf"
     TARGET_DIR: "prometheus"
 
+.alertmanager_job_template: &alertmanager_job
+  variables:
+    DOCKER_IMAGE_NAME: "alertmanager-armhf"
+    TARGET_DIR: "alertmanager"
 
 test_prometheus:
   <<: *test_job
@@ -48,3 +52,10 @@ publish_prometheus:
   <<: *publish_job
   <<: *prometheus_job
 
+test_alertmanager:
+  <<: *test_job
+  <<: *alertmanager_job
+
+publish_alertmanager:
+  <<: *publish_job
+  <<: *alertmanager_job
