@@ -1,0 +1,37 @@
+image: docker:stable
+services:
+  - name: docker:stable-dind
+    command: ["--mtu=1450"]
+
+stages:
+  - test
+  - build
+
+before_script:
+  - docker login -u $USERNAME -p $PASSWORD
+
+variables:
+  DOCKER_REGISTRY: "ryama0"
+  DOCKER_IMAGE_NAME: "prometheus-armhf"
+  DOCKER_HOST: "tcp://localhost:2375"
+
+test:
+  stage: test
+  script:
+    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:test .
+  tags:
+    - runner=kubernetes
+    - arch=armhf
+  except:
+    - master
+build:
+  stage: build
+  script:
+    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest .
+    - docker push $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest
+  tags:
+    - runner=kubernetes
+    - arch=armhf
+  only:
+    - master
+
