@@ -33,6 +33,10 @@ variables:
     - arch=armhf
   only:
     - master
+  retry:
+    max: 2
+    when:
+      - script_failure
 
 .prometheus_job_template: &prometheus_job
   variables:
