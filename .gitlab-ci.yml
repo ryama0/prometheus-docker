@@ -18,8 +18,8 @@ variables:
   tags:
     - runner=kubernetes
     - arch=armhf
-  except:
-    - master
+  only:
+    - merge_requests
 
 .publish_job_template: &publish_job
   stage: publish
