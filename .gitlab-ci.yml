@@ -10,11 +10,13 @@ stages:
 variables:
   DOCKER_REGISTRY: "ryama0"
   DOCKER_HOST: "tcp://localhost:2375"
+  ARCH: armv7
+  SOURCE: debian:stretch
 
 .test_job_template: &test_job
   stage: test
   script:
-    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:test ./$TARGET_DIR
+    - docker build --build-arg SOURCE=${SOURCE} --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:test ./$TARGET_DIR
   tags:
     - runner=kubernetes
     - arch=armhf
@@ -26,8 +28,8 @@ variables:
   before_script:
     - docker login -u $USERNAME -p $PASSWORD
   script:
-    - docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest ./$TARGET_DIR
-    - docker push $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:latest
+    - docker build --build-arg SOURCE=${SOURCE} --build-arg VERSION=${VERSION} --build-arg ARCH=${ARCH} -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$PUBLISH_TAG ./$TARGET_DIR
+    - docker push $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$PUBLISH_TAG
   tags:
     - runner=kubernetes
     - arch=armhf
@@ -42,16 +44,19 @@ variables:
   variables:
     DOCKER_IMAGE_NAME: "prometheus-armhf"
     TARGET_DIR: "prometheus"
+    VERSION: 2.8.0
 
 .alertmanager_job_template: &alertmanager_job
   variables:
     DOCKER_IMAGE_NAME: "alertmanager-armhf"
     TARGET_DIR: "alertmanager"
+    VERSION: 0.16.1
 
 .node_exporter_job_template: &node_exporter_job
   variables:
     DOCKER_IMAGE_NAME: "node_exporter-armhf"
     TARGET_DIR: "node_exporter"
+    VERSION: 0.17.0
 
 test_prometheus:
   <<: *test_job
