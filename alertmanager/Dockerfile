@@ -11,6 +11,9 @@ RUN apt-get update && \
 FROM ${SOURCE}
 ARG VERSION
 ARG ARCH
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=build-env /alertmanager-${VERSION}.linux-${ARCH}/amtool /bin/amtool
 COPY --from=build-env /alertmanager-${VERSION}.linux-${ARCH}/alertmanager /bin/alertmanager
 COPY --from=build-env /alertmanager-${VERSION}.linux-${ARCH}/alertmanager /etc/alertmanager/alertmanager.yml
